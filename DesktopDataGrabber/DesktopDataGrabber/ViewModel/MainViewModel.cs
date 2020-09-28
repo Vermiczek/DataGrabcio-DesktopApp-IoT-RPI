@@ -510,18 +510,19 @@ namespace DesktopDataGrabcio.ViewModel
                     {
                         JArray DataJsonArray = JArray.Parse(responseText2);
                         var DataTableList = DataJsonArray.ToObject<List<TableModel>>();
-                        ResetTimer = ResetTimer + 1;
-                        if(ResetTimer==2)
-                        {
-                            DataTableList.Clear();
-                            ResetTimer = 0;
-                        }
                         if (DataTable.Count < DataTableList.Count)
                         {
                             foreach (var d in DataTableList)
                             {
                                 DataTable.Add(new TablesViewModel(d));
-                            }}}});
+                            }}
+                        else
+                        {
+                            for (int i = 0; i < DataTable.Count; i++)
+                                DataTable[i].UpdateWithModel(DataTableList[i]);
+                        }
+                    }
+                });
 
 
                 //Updates charts

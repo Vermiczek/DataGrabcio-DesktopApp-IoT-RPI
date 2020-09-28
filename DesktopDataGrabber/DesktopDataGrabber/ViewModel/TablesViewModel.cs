@@ -42,7 +42,7 @@ namespace DesktopDataGrabcio.ViewModel
             {
                 if (Double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out double tmp) && MeasurementValue != tmp)
                 {
-                    MeasurementValue = tmp;
+                    MeasurementValue = Convert.ToDouble(value);
                     OnPropertyChanged("Value");
                 }
             }
@@ -66,19 +66,22 @@ namespace DesktopDataGrabcio.ViewModel
         }
 
 
-        public TablesViewModel(TableModel Model)
+       
+
+        public TablesViewModel(TableModel model)
         {
-            MeasurementName = Model.Name;
-            OnPropertyChanged("Name");
-
-            MeasurementValue = Model.Value;
-            OnPropertyChanged("Value");
-
-            MeasurementUnit = Model.Unit;
-            OnPropertyChanged("Unit");
-
+            UpdateWithModel(model);
         }
 
+        public void UpdateWithModel(TableModel model)
+        {
+            MeasurementName = model.Name;
+            OnPropertyChanged("Name");
+            MeasurementValue = model.Value;
+            OnPropertyChanged("Value");
+            MeasurementUnit = model.Unit;
+            OnPropertyChanged("Unit");
+        }
 
         #region PropertyChanged
 

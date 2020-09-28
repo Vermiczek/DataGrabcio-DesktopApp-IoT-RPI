@@ -1,4 +1,4 @@
-﻿namespace DesktopDataGrabber.Model
+﻿namespace DesktopDataGrabcio.Model
 {
     public class ConfigParams
     {
@@ -6,7 +6,8 @@
         public string IpAddress;
         static readonly int sampleTimeDefault = 500;
         public int SampleTime;
-        public readonly int MaxSampleNumber = 100;
+        public readonly int MaxSampleNumber;
+        public readonly int MaxSampleNumberDefault = 100;
         public double XAxisMax
         {
             get
@@ -20,12 +21,14 @@
         {
             IpAddress = ipAddressDefault;
             SampleTime = sampleTimeDefault;
+            MaxSampleNumber = MaxSampleNumberDefault;
         }
 
-        public ConfigParams(string ip, int st)
+        public ConfigParams(string ip, int st, int sn)
         {
             IpAddress = ip;
             SampleTime = st;
+            MaxSampleNumber = sn;
         }
     }
 }

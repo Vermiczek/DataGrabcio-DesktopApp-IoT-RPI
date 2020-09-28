@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace DesktopDataGrabber.ViewModel
+namespace DesktopDataGrabcio.ViewModel
 {
     public class ButtonCommand : ICommand
     {

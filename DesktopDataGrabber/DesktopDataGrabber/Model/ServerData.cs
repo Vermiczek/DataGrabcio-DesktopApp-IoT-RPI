@@ -1,8 +1,6 @@
-﻿namespace DesktopDataGrabber.Model
+﻿namespace DesktopDataGrabcio.Model
 {
-    /**
-     * @brief Simple parseable data model for IoT server response
-     */ 
+   //data model used to draw charts
     public class ServerData
     {
         public double Temperature { get; set; }

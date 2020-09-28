@@ -6,75 +6,75 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DesktopDataGrabber.ViewModel
+namespace DesktopDataGrabcio.ViewModel
 {
-    using DesktopDataGrabber.Model;
+    using DesktopDataGrabcio.Model;
 
-
+    //contains all the information neccessary to create a complete and working ListView using information aquired from the server. Uses TableModel.cs
     public class TablesViewModel : INotifyPropertyChanged
     {
-        private string name_data;
+        private string MeasurementName;
 
         public string Name
         {
             get
             {
-                return name_data;
+                return MeasurementName;
             }
             set
             {
-                if (name_data != value)
+                if (MeasurementName != value)
                 {
-                    name_data = value;
+                    MeasurementName = value;
                     OnPropertyChanged("Name");
                 }
             }
         }
 
-        private double value_data;
+        private double MeasurementValue;
         public string Value
         {
             get
             {
-                return value_data.ToString("N1", CultureInfo.InvariantCulture);
+                return MeasurementValue.ToString("N1", CultureInfo.InvariantCulture);
             }
             set
             {
-                if (Double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out double tmp) && value_data != tmp)
+                if (Double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out double tmp) && MeasurementValue != tmp)
                 {
-                    value_data = tmp;
+                    MeasurementValue = tmp;
                     OnPropertyChanged("Value");
                 }
             }
         }
 
-        private string unit_data;
+        private string MeasurementUnit;
         public string Unit
         {
             get
             {
-                return unit_data;
+                return MeasurementUnit;
             }
             set
             {
-                if (unit_data != value)
+                if (MeasurementUnit != value)
                 {
-                    unit_data = value;
+                    MeasurementUnit = value;
                     OnPropertyChanged("Unit");
                 }
             }
         }
 
 
-        public TablesViewModel(TablesModel model)
+        public TablesViewModel(TableModel Model)
         {
-            name_data = model.Name;
+            MeasurementName = Model.Name;
             OnPropertyChanged("Name");
 
-            value_data = model.Value;
+            MeasurementValue = Model.Value;
             OnPropertyChanged("Value");
 
-            unit_data = model.Unit;
+            MeasurementUnit = Model.Unit;
             OnPropertyChanged("Unit");
 
         }

@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace DesktopDataGrabber.View
+namespace DesktopDataGrabcio.View
 {
     /** 
      * @brief Interaction logic for MainWindow.xaml 
@@ -27,9 +27,10 @@ namespace DesktopDataGrabber.View
             InitializeComponent();
         }
        
+        //Opens charts, hides anything else
         private void Button_THP(object sender, RoutedEventArgs e)
         {
-            this.Led_Matrix.Visibility = Visibility.Collapsed;
+            this.LedMatrix.Visibility = Visibility.Collapsed;
             this.DataPlotViewTemp.Visibility = Visibility.Visible;
             this.DataPlotViewPressure.Visibility = Visibility.Visible;
             this.DataPlotViewHumid.Visibility = Visibility.Visible;
@@ -39,6 +40,7 @@ namespace DesktopDataGrabber.View
 
         }
 
+        //Opens tableview, hides anything else
         private void Button_TV(object sender, RoutedEventArgs e)
         {
             this.DataPlotViewTemp.Visibility = Visibility.Collapsed;
@@ -46,13 +48,13 @@ namespace DesktopDataGrabber.View
             this.DataPlotViewHumid.Visibility = Visibility.Collapsed;
             this.DataPlotViewRPY.Visibility = Visibility.Collapsed;
             this.DataPlotViewJOY.Visibility = Visibility.Collapsed;
-            this.Led_Matrix.Visibility = Visibility.Collapsed;
+            this.LedMatrix.Visibility = Visibility.Collapsed;
             this.Data_table.Visibility = Visibility.Visible;
         }
 
 
 
-
+        //Opens LED, hides anything else
         private void Button_LED(object sender, RoutedEventArgs e)
         {
             this.DataPlotViewTemp.Visibility = Visibility.Collapsed;
@@ -60,7 +62,7 @@ namespace DesktopDataGrabber.View
             this.DataPlotViewHumid.Visibility = Visibility.Collapsed;
             this.DataPlotViewRPY.Visibility = Visibility.Collapsed;
             this.DataPlotViewJOY.Visibility = Visibility.Collapsed;
-            this.Led_Matrix.Visibility = Visibility.Visible;
+            this.LedMatrix.Visibility = Visibility.Visible;
             this.Data_table.Visibility = Visibility.Collapsed;
 
         }

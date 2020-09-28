@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace DesktopDataGrabber.Properties
+namespace DesktopDataGrabcio.Properties
 {
 
 

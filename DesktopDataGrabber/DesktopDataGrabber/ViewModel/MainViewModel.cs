@@ -18,7 +18,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 
-namespace DesktopDataGrabber.ViewModel
+namespace DesktopDataGrabcio.ViewModel
 {
     using Model;
     using System.Windows.Controls;
@@ -27,14 +27,14 @@ namespace DesktopDataGrabber.ViewModel
     using System.Collections.ObjectModel;
 
     /** 
-      * @brief View model for MainWindow.xaml 
+      * @brief View Model for MainWindow.xaml 
       */
     public class MainViewModel : INotifyPropertyChanged
     {
         #region Properties
         private string ipAddress;
 
-        public ObservableCollection<TablesViewModel> Data_tables { get; set; }
+        public ObservableCollection<TablesViewModel> DataTable { get; set; }
 
         public string IpAddress
         {
@@ -71,11 +71,31 @@ namespace DesktopDataGrabber.ViewModel
             }
         }
 
-        public PlotModel Chart_temp { get; set; }
+        private int maxSampleNumber;
+        public string MaxSampleNumber
+        {
+            get
+            {
+                return maxSampleNumber.ToString();
+            }
+            set
+            {
+                if (Int32.TryParse(value, out int sn))
+                {
+                    if (sampleTime != sn)
+                    {
+                        maxSampleNumber = sn;
+                        OnPropertyChanged("MaxSampleNumber");
+                    }
+                }
+            }
+        }
 
-        public PlotModel Chart_press { get; set; }
+        public PlotModel ChartTemp { get; set; }
 
-        public PlotModel Chart_humid { get; set; }
+        public PlotModel ChartPress { get; set; }
+
+        public PlotModel ChartHumid { get; set; }
          
         public PlotModel ChartRPY { get; set; }
 
@@ -91,6 +111,8 @@ namespace DesktopDataGrabber.ViewModel
 
         public Brush Gradient { get; set; }
 
+        int ResetTimer = 0;
+
         #endregion
 
         #region Fields
@@ -100,18 +122,19 @@ namespace DesktopDataGrabber.ViewModel
         private IoTServer Server;
         #endregion
 
+        //MainView model, contains declarations of charts and buttons, their attributes and assigned functions
         public MainViewModel()
         {
-            Data_tables = new ObservableCollection<TablesViewModel>();
+            DataTable = new ObservableCollection<TablesViewModel>();
 
-            Chart_temp = new PlotModel { Title = "Temperature" };
-            Chart_press = new PlotModel { Title = "Pressure" };
-            Chart_humid = new PlotModel { Title = "Humidity" };
-            ChartRPY = new PlotModel { Title = "Humidity" };
-            ChartJOY = new PlotModel { Title = "Humidity" };
+            ChartTemp = new PlotModel { Title = "Temperature" };
+            ChartPress = new PlotModel { Title = "Pressure" };
+            ChartHumid = new PlotModel { Title = "Humidity" };
+            ChartRPY = new PlotModel { Title = "Roll, Pitch, Yaw angles" };
+            ChartJOY = new PlotModel { Title = "Joystick" };
 
 
-            Chart_temp.Axes.Add(new LinearAxis()
+            ChartTemp.Axes.Add(new LinearAxis()
             {
                 Position = AxisPosition.Bottom,
                 Minimum = 0,
@@ -120,16 +143,16 @@ namespace DesktopDataGrabber.ViewModel
                 Unit = "sec",
                 Title = "Time"
             });
-            Chart_temp.Axes.Add(new LinearAxis()
+            ChartTemp.Axes.Add(new LinearAxis()
             {
                 Position = AxisPosition.Left,
                 Minimum = 30,
                 Maximum = -20,
                 Key = "Vertical",
-                Unit = "-",
-                Title = "Random value"
+                Unit = "C",
+                Title = "Temperature"
             });
-            Chart_press.Axes.Add(new LinearAxis()
+            ChartPress.Axes.Add(new LinearAxis()
             {
                 Position = AxisPosition.Bottom,
                 Minimum = 0,
@@ -138,16 +161,16 @@ namespace DesktopDataGrabber.ViewModel
                 Unit = "sec",
                 Title = "Time"
             });
-            Chart_press.Axes.Add(new LinearAxis()
+            ChartPress.Axes.Add(new LinearAxis()
             {
                 Position = AxisPosition.Left,
                 Minimum = 0,
                 Maximum = 1200,
                 Key = "Vertical",
-                Unit = "-",
-                Title = "Random value"
+                Unit = "mbar",
+                Title = "Pressure"
             });
-            Chart_humid.Axes.Add(new LinearAxis()
+            ChartHumid.Axes.Add(new LinearAxis()
             {
                 Position = AxisPosition.Bottom,
                 Minimum = 0,
@@ -156,14 +179,14 @@ namespace DesktopDataGrabber.ViewModel
                 Unit = "sec",
                 Title = "Time"
             });
-            Chart_humid.Axes.Add(new LinearAxis()
+            ChartHumid.Axes.Add(new LinearAxis()
             {
                 Position = AxisPosition.Left,
                 Minimum = 0,
                 Maximum = 100,
                 Key = "Vertical",
-                Unit = "-",
-                Title = "Random value"
+                Unit = "%",
+                Title = "Humidity"
             });
 
             ChartRPY.Axes.Add(new LinearAxis()
@@ -172,7 +195,7 @@ namespace DesktopDataGrabber.ViewModel
                 Minimum = 0,
                 Maximum = config.XAxisMax,
                 Key = "Horizontal",
-                Unit = "sec",
+                Unit = "s",
                 Title = "Time"
             });
             ChartRPY.Axes.Add(new LinearAxis()
@@ -181,8 +204,8 @@ namespace DesktopDataGrabber.ViewModel
                 Minimum = 0,
                 Maximum = 100,
                 Key = "Vertical",
-                Unit = "-",
-                Title = "Random value"
+                Unit = "Degrees",
+                Title = "Angle value"
             });
 
             ChartJOY.Axes.Add(new LinearAxis()
@@ -191,8 +214,7 @@ namespace DesktopDataGrabber.ViewModel
                 Minimum = -30,
                 Maximum = 30,
                 Key = "Horizontal",
-                Unit = "sec",
-                Title = "Time"
+                Unit = "x",
             });
             ChartJOY.Axes.Add(new LinearAxis()
             {
@@ -200,13 +222,12 @@ namespace DesktopDataGrabber.ViewModel
                 Minimum = -30,
                 Maximum = 30,
                 Key = "Vertical",
-                Unit = "-",
-                Title = "Random value"
+                Unit = "y",
             });
 
-            Chart_humid.Series.Add(new LineSeries() { Title = "random data series", Color = OxyColor.Parse("#FFFF0000") });
-            Chart_press.Series.Add(new LineSeries() { Title = "random data series", Color = OxyColor.Parse("#FFFF0000") });
-            Chart_temp.Series.Add(new LineSeries() { Title = "random data series", Color = OxyColor.Parse("#FFFF0000") });
+            ChartHumid.Series.Add(new LineSeries() { Title = "Humidity", Color = OxyColor.Parse("#FFFF0000") });
+            ChartPress.Series.Add(new LineSeries() { Title = "Pressure", Color = OxyColor.Parse("#FFFF0000") });
+            ChartTemp.Series.Add(new LineSeries() { Title = "Temperature", Color = OxyColor.Parse("#FFFF0000") });
 
             ChartRPY.Series.Add(new LineSeries() { Title = "Roll", Color = OxyColor.Parse("#FFFF0000") });
             ChartRPY.Series.Add(new LineSeries() { Title = "Pitch", Color = OxyColor.Parse("#0000FF") });
@@ -228,18 +249,16 @@ namespace DesktopDataGrabber.ViewModel
 
             ipAddress = config.IpAddress;
             sampleTime = config.SampleTime;
+            maxSampleNumber = config.MaxSampleNumber;
 
             Server = new IoTServer(IpAddress);
         }
 
-        /**
-          * @brief Time series plot update procedure.
-          * @param t X axis data: Time stamp [ms].
-          * @param d Y axis data: Real-time measurement [-].
-          */
+        
+        //updates temperature chart
         private void UpdatePlotT(double t, double d)
         {
-            LineSeries lineSeries = Chart_temp.Series[0] as LineSeries;
+            LineSeries lineSeries = ChartTemp.Series[0] as LineSeries;
 
             lineSeries.Points.Add(new DataPoint(t, d));
 
@@ -248,16 +267,17 @@ namespace DesktopDataGrabber.ViewModel
 
             if (t >= config.XAxisMax)
             {
-                Chart_temp.Axes[0].Minimum = (t - config.XAxisMax);
-                Chart_temp.Axes[0].Maximum = t + config.SampleTime / 1000.0; ;
+                ChartTemp.Axes[0].Minimum = (t - config.XAxisMax);
+                ChartTemp.Axes[0].Maximum = t + config.SampleTime / 1000.0; ;
             }
 
-            Chart_temp.InvalidatePlot(true);
+            ChartTemp.InvalidatePlot(true);
         }
 
+        //updated humidity chart
         private void UpdatePlotH(double t, double d)
         {
-            LineSeries lineSeries = Chart_humid.Series[0] as LineSeries;
+            LineSeries lineSeries = ChartHumid.Series[0] as LineSeries;
 
             lineSeries.Points.Add(new DataPoint(t, d));
 
@@ -266,16 +286,17 @@ namespace DesktopDataGrabber.ViewModel
 
             if (t >= config.XAxisMax)
             {
-                Chart_humid.Axes[0].Minimum = (t - config.XAxisMax);
-                Chart_humid.Axes[0].Maximum = t + config.SampleTime / 1000.0; ;
+                ChartHumid.Axes[0].Minimum = (t - config.XAxisMax);
+                ChartHumid.Axes[0].Maximum = t + config.SampleTime / 1000.0; ;
             }
 
-            Chart_humid.InvalidatePlot(true);
+            ChartHumid.InvalidatePlot(true);
         }
 
+        //updates pressure chart
         private void UpdatePlotP(double t, double d)
         {
-            LineSeries lineSeries = Chart_press.Series[0] as LineSeries;
+            LineSeries lineSeries = ChartPress.Series[0] as LineSeries;
 
             lineSeries.Points.Add(new DataPoint(t, d));
 
@@ -284,15 +305,15 @@ namespace DesktopDataGrabber.ViewModel
 
             if (t >= config.XAxisMax)
             {
-                Chart_press.Axes[0].Minimum = (t - config.XAxisMax);
-                Chart_press.Axes[0].Maximum = t + config.SampleTime / 1000.0; ;
+                ChartPress.Axes[0].Minimum = (t - config.XAxisMax);
+                ChartPress.Axes[0].Maximum = t + config.SampleTime / 1000.0; ;
             }
 
-            Chart_press.InvalidatePlot(true);
+            ChartPress.InvalidatePlot(true);
         }
 
 
-
+        //updates joystick chart, creates a single point with current joystick coordinates
         private void UpdatePlotJoy(double t, double d)
         {
             LineSeries lineSeries = ChartJOY.Series[0] as LineSeries;
@@ -304,6 +325,7 @@ namespace DesktopDataGrabber.ViewModel
             ChartJOY.InvalidatePlot(true);
         }
 
+        //updates angles chart, creates many lineseries on one chart
         private void UpdatePlotRPY(double t, double r, double p, double y)
         {
             LineSeries lineSeriesR = ChartRPY.Series[0] as LineSeries;
@@ -329,17 +351,22 @@ namespace DesktopDataGrabber.ViewModel
             ChartRPY.InvalidatePlot(true);
         }
 
+        //sends LED data to server script
         private async void SendLedData()
         {
             await Server.ClientSendLed(X, Y, R, G, B);
         }
 
+
+        //Requests clearing of LED matrix
         private async void ClearLedData()
         {
             
            await Server.ClientClearLed();
          
         }
+
+        //Declarations of coordinates used in led control to point at the exact LED we want to change
 
         private string x = "0";
         public string X
@@ -394,6 +421,8 @@ namespace DesktopDataGrabber.ViewModel
             return brush;
 
         }
+
+        //Declarations of RGB values used in LED matrix
         private string r = "0";
         public string R
         {
@@ -451,17 +480,15 @@ namespace DesktopDataGrabber.ViewModel
                 }
             }
         }
-        /**
-          * @brief Asynchronous chart update procedure with
-          *        data obtained from IoT server responses.
-          * @param ip IoT server IP address.
-          */
+        
+
+        //Connects to network, updates charts and listView
         private async void UpdatePlotWithServerResponse()
-        {
+        {  //acquires server response and assigns it to a string variable
 #if CLIENT
 #if GET
             string responseText1 = await Server.GETwithClient();
-            string responseText2 = await Server.GETwithClient_Array();
+            string responseText2 = await Server.GETwithClientTableview();
 #else
             string responseText = await Server.POSTwithClient();
 #endif
@@ -471,8 +498,9 @@ namespace DesktopDataGrabber.ViewModel
 #else
             string responseText = await Server.POSTwithRequest();
 #endif
-#endif
-
+#endif      
+            
+            //Acquires and uses tableview data
             try
             {
 
@@ -481,21 +509,22 @@ namespace DesktopDataGrabber.ViewModel
                     if (responseText2 != null)
                     {
                         JArray DataJsonArray = JArray.Parse(responseText2);
-
-                        var Data_Tables_List = DataJsonArray.ToObject<List<TablesModel>>();
-
-                        if (Data_tables.Count < Data_Tables_List.Count)
+                        var DataTableList = DataJsonArray.ToObject<List<TableModel>>();
+                        ResetTimer = ResetTimer + 1;
+                        if(ResetTimer==2)
                         {
-                            foreach (var d in Data_Tables_List)
-                            {
-                                Data_tables.Add(new TablesViewModel(d));
-                            }
+                            DataTableList.Clear();
+                            ResetTimer = 0;
                         }
-                    }
-                });
+                        if (DataTable.Count < DataTableList.Count)
+                        {
+                            foreach (var d in DataTableList)
+                            {
+                                DataTable.Add(new TablesViewModel(d));
+                            }}}});
 
 
-
+                //Updates charts
 #if DYNAMIC
                 dynamic responseJson = JObject.Parse(responseText1);
                 UpdatePlotT(timeStamp / 1000.0, (double)responseJson.Temperature);
@@ -541,9 +570,9 @@ namespace DesktopDataGrabber.ViewModel
                 RequestTimer.Elapsed += new ElapsedEventHandler(RequestTimerElapsed);
                 RequestTimer.Enabled = true;
 
-                Chart_humid.ResetAllAxes();
-                Chart_press.ResetAllAxes();
-                Chart_temp.ResetAllAxes();
+                ChartHumid.ResetAllAxes();
+                ChartPress.ResetAllAxes();
+                ChartTemp.ResetAllAxes();
             }
         }
 
@@ -569,7 +598,7 @@ namespace DesktopDataGrabber.ViewModel
             if (restartTimer)
                 StopTimer();
 
-            config = new ConfigParams(ipAddress, sampleTime);
+            config = new ConfigParams(ipAddress, sampleTime, maxSampleNumber);
             Server = new IoTServer(IpAddress);
 
             if (restartTimer)

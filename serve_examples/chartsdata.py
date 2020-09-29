@@ -59,7 +59,7 @@ def save_tableview():
 
     with open('tableview.json', 'w+') as outfile:
 
-        result = json.dumps([{"name":'Temperature',"value":Temperature,"unit":'C'},{"name":'Pressure',"value":Pressure,"unit":'mbar'},{"name": 'Humidity',"value":Humidity,"unit": '%'},
+        result = json.dumps([{"name":'Temperature',"value":Temperature,"unit":'C'},{"name":'Pressure',"value":Pressure,"unit":'hPa'},{"name": 'Humidity',"value":Humidity,"unit": '%'},
         {"name": 'Roll',"value":Roll,"unit": 'degrees'},{"name": 'Pitch',"value":Pitch,"unit": 'degrees'},{"name": 'Yaw',"value":Yaw,"unit": 'degrees'}])
         outfile.write(result)
                 

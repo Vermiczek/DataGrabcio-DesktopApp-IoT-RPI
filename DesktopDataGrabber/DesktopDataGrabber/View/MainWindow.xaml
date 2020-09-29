@@ -190,11 +190,13 @@
                 <TextBlock Grid.Column="0" Grid.Row="0" Text="COLOUR:" FontSize="32" FontWeight="Bold" Margin="30,10,100,0" Grid.RowSpan="2"/>
                 <TextBlock Grid.Column="0" Grid.Row="2" Text="R: " FontSize="24" FontWeight="Bold" Margin="30,10,100,0"/>
                 <TextBox Grid.Row="2" Text="{Binding R}" FontSize="24" Margin="70,10,100,0" Width="60"/>
+                <Rectangle Grid.Row="2" Height="24" Fill="Red" Width="30" Margin="-250,10,-358,0"/>
                 <TextBlock Grid.Row="2" Text="G: " FontSize="24" FontWeight="Bold" Margin="254,10,-119,0" Grid.ColumnSpan="6"/>
                 <TextBox Grid.Row="2" Text="{Binding G}" FontSize="24" Margin="30,10,-130,0" Grid.Column="5" Width="60"/>
+                <Rectangle Grid.Row="2"  Height="24" Fill="Green" Width="30" Margin="-60,10,-358,0" Grid.Column="3"/>
                 <TextBlock Grid.Column="5" Grid.Row="2" Text="B: " FontSize="24" FontWeight="Bold" Margin="215,10,-358,-10"/>
                 <TextBox Grid.Row="2" Text="{Binding B}" FontSize="24" Margin="258,10,-358,0" Grid.Column="5" Width="60"/>
-                <Rectangle Grid.Row="2" Name="Gradient"  Height="24" HorizontalAlignment="Right" Width="30" Fill="{Binding Gradient}" RenderTransformOrigin="-1.656,1.028" Margin="350,10,-358,0" Grid.Column="5"/>
+                <Rectangle Grid.Row="2" Name="Gradient"  Height="24" HorizontalAlignment="Right" Width="30" Fill="Blue" RenderTransformOrigin="-1.656,1.028" Margin="390,10,-358,0" Grid.Column="4"/>
 
             </Grid>
 

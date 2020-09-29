@@ -21,7 +21,6 @@ using Newtonsoft.Json.Linq;
 namespace DesktopDataGrabcio.ViewModel
 {
     using Model;
-    using System.Windows.Controls;
     using System.Windows.Media;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -202,7 +201,7 @@ namespace DesktopDataGrabcio.ViewModel
             {
                 Position = AxisPosition.Left,
                 Minimum = 0,
-                Maximum = 100,
+                Maximum = 360,
                 Key = "Vertical",
                 Unit = "Degrees",
                 Title = "Angle value"
@@ -358,6 +357,32 @@ namespace DesktopDataGrabcio.ViewModel
         }
 
 
+        //creates and updates datatables
+        private void makeDatatable(string responseText)
+        {
+            App.Current.Dispatcher.Invoke((System.Action)delegate
+            {
+                if (responseText != null)
+                {
+                    JArray DataJsonArray = JArray.Parse(responseText);
+                    var DataTableList = DataJsonArray.ToObject<List<TableModel>>();
+                    if (DataTable.Count < DataTableList.Count)
+                    {
+                        foreach (var d in DataTableList)
+                        {
+                            DataTable.Add(new TablesViewModel(d));
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < DataTable.Count; i++)
+                            DataTable[i].UpdateWithModel(DataTableList[i]);
+                    }
+                }
+            });
+
+
+        }
         //Requests clearing of LED matrix
         private async void ClearLedData()
         {
@@ -402,26 +427,6 @@ namespace DesktopDataGrabcio.ViewModel
             }
         }
 
-        private Brush Set_color(string R, string G, string B)
-        {
-
-            double red, green, blue;
-
-            red = double.Parse(R);
-            green = double.Parse(G);
-            blue = double.Parse(B);
-
-            Byte Rbyte = Convert.ToByte(red);
-            Byte Gbyte = Convert.ToByte(green);
-            Byte Bbyte = Convert.ToByte(blue);
-            Color color_temp = Color.FromArgb(255, Rbyte, Gbyte, Bbyte);
-
-            Brush brush = new SolidColorBrush(color_temp);
-          
-            return brush;
-
-        }
-
         //Declarations of RGB values used in LED matrix
         private string r = "0";
         public string R
@@ -436,9 +441,6 @@ namespace DesktopDataGrabcio.ViewModel
                 {
                     r = value;
                     OnPropertyChanged("R");
-                    Brush color;
-                    color = Set_color(R, G, B);
-                    Gradient = color;
                 }
             }
         }
@@ -455,9 +457,7 @@ namespace DesktopDataGrabcio.ViewModel
                 {
                     g = value;
                     OnPropertyChanged("G");
-                    Brush color;
-                    color = Set_color(R, G, B);
-                    Gradient = color;
+                    
                 }
             }
         }
@@ -474,69 +474,33 @@ namespace DesktopDataGrabcio.ViewModel
                 {
                     b = value;
                     OnPropertyChanged("B");
-                    Brush color;
-                    color = Set_color(R, G, B);
-                    Gradient = color;
+                   
                 }
             }
         }
         
-
+     
         //Connects to network, updates charts and listView
         private async void UpdatePlotWithServerResponse()
         {  //acquires server response and assigns it to a string variable
-#if CLIENT
-#if GET
             string responseText1 = await Server.GETwithClient();
             string responseText2 = await Server.GETwithClientTableview();
-#else
-            string responseText = await Server.POSTwithClient();
-#endif
-#else
-#if GET
-            string responseText = await Server.GETwithRequest();
-#else
-            string responseText = await Server.POSTwithRequest();
-#endif
-#endif      
-            
-            //Acquires and uses tableview data
+
+            //Managing datatable and charts data
             try
             {
 
-                App.Current.Dispatcher.Invoke((System.Action)delegate
-                {
-                    if (responseText2 != null)
-                    {
-                        JArray DataJsonArray = JArray.Parse(responseText2);
-                        var DataTableList = DataJsonArray.ToObject<List<TableModel>>();
-                        if (DataTable.Count < DataTableList.Count)
-                        {
-                            foreach (var d in DataTableList)
-                            {
-                                DataTable.Add(new TablesViewModel(d));
-                            }}
-                        else
-                        {
-                            for (int i = 0; i < DataTable.Count; i++)
-                                DataTable[i].UpdateWithModel(DataTableList[i]);
-                        }
-                    }
-                });
+                makeDatatable(responseText2);
 
 
                 //Updates charts
-#if DYNAMIC
                 dynamic responseJson = JObject.Parse(responseText1);
                 UpdatePlotT(timeStamp / 1000.0, (double)responseJson.Temperature);
                 UpdatePlotH(timeStamp / 1000.0, (double)responseJson.Humidity);
                 UpdatePlotP(timeStamp / 1000.0, (double)responseJson.Pressure);
                 UpdatePlotRPY(timeStamp / 1000.0, (double)responseJson.Roll, (double)responseJson.Pitch, (double)responseJson.Yaw);
                 UpdatePlotJoy((int)responseJson.x, (int)responseJson.y);
-#else
-                ServerData resposneJson = JsonConvert.DeserializeObject<ServerData>(responseText1);
-                UpdatePlot(timeStamp / 1000.0, resposneJson.data);
-#endif
+
             }
             catch (Exception e)
             {

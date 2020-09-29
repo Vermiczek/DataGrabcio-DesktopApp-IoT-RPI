@@ -2,7 +2,7 @@
 {
     public class ConfigParams
     {
-        static readonly string ipAddressDefault = "192.168.1.17";
+        static readonly string ipAddressDefault = "192.168.1.18";
         public string IpAddress;
         static readonly int sampleTimeDefault = 500;
         public int SampleTime;
